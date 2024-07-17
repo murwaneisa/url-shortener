@@ -4,11 +4,23 @@ const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
   const { name, email, password } = req.body;
+
+  // Input validation
+  if (!name || !email || !password) {
+    return res.status(400).json({ msg: "Please enter all fields" });
+  }
+
+  const emailRegex = /.+@.+\..+/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ msg: "Please enter a valid email" });
+  }
+
   try {
     let user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ msg: "User already exists" });
     }
+
     user = new User({ name, email, password });
     await user.save();
     res.status(201).json({ msg: "User registered successfully" });
@@ -23,11 +35,11 @@ exports.login = async (req, res) => {
   try {
     let user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ msg: "Invalid credentials" });
+      return res.status(400).json({ msg: "Invalid email" });
     }
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ msg: "Invalid credentials" });
+      return res.status(400).json({ msg: "Invalid password" });
     }
     const payload = { user: { id: user.id, name: user.name } };
     jwt.sign(

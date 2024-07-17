@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register - URL Shortener</title>
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .container {
+        max-width: 500px;
+        margin-top: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2 class="text-center">Register</h2>
+      <form id="registerForm" class="mt-4">
+        <div
+          id="error-message"
+          class="alert alert-danger d-none"
+          role="alert"
+        ></div>
+        <div class="form-group">
+          <label for="registerName">Name</label>
+          <input
+            type="text"
+            class="form-control"
+            id="registerName"
+            placeholder="Enter name"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="registerEmail">Email address</label>
+          <input
+            type="email"
+            class="form-control"
+            id="registerEmail"
+            placeholder="Enter email"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="registerPassword">Password</label>
+          <input
+            type="password"
+            class="form-control"
+            id="registerPassword"
+            placeholder="Password"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">
+          Register
+        </button>
+      </form>
+      <p class="text-center mt-3">
+        Already have an account? <a href="/login">Login here</a>
+      </p>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+      document
+        .getElementById("registerForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const name = document.getElementById("registerName").value;
+          const email = document.getElementById("registerEmail").value;
+          const password = document.getElementById("registerPassword").value;
+          const errorMessageElement = document.getElementById("error-message");
+
+          const response = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name, email, password }),
+          });
+
+          const data = await response.json();
+          if (response.ok) {
+            errorMessageElement.classList.add("d-none");
+            alert("Registration successful");
+            window.location.href = "/login"; // Redirect to login page
+          } else {
+            errorMessageElement.textContent = data.msg;
+            errorMessageElement.classList.remove("d-none");
+          }
+        });
+    </script>
+  </body>
+</html>
