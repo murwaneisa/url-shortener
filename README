@@ -1,0 +1,86 @@
+# URL Shortener
+
+## Introduction
+
+This is a URL shortener application built with Node.js and Express.js. It allows users to shorten URLs, view their shortened URLs, and delete or edit them.
+
+## Features
+
+- User authentication (login and registration)
+- URL shortening
+- View, edit, and delete shortened URLs
+- Protected routes
+
+## Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/yourusername/url-shortener.git
+   cd url-shortener
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables. Create a `.env` file in the project root and add the following:
+
+   ```plaintext
+   MONGO_URI=your_mongo_connection_string
+   JWT_SECRET=your_jwt_secret
+   ```
+
+4. Run the application:
+
+   ```bash
+   npm install
+   npm start
+   ```
+
+5. Access the application at `http://localhost:5000`.
+
+## Usage
+
+- Navigate to `http://localhost:5000/register` to create a new account.
+- Navigate to `http://localhost:5000/login` to log in.
+- Once logged in, you can access the home page at `http://localhost:5000/home` to shorten URLs and manage them.
+
+## Project Structure
+
+url-shortener/
+│
+├── config/
+│ └── db.js
+│
+├── controllers/
+│ ├── authController.js
+│ └── urlController.js
+│
+├── middleware/
+│ └── authMiddleware.js
+│
+├── models/
+│ ├── user.js
+│ └── url.js
+│
+├── routes/
+│ ├── auth.js
+│ └── url.js
+│
+├── views/
+│ ├── login.html
+│ ├── register.html
+│ └── home.html
+│
+├── .env
+├── .gitignore
+├── package.json
+├── README.md
+└── app.js
+
+## License
+
+This project is licensed under the MIT License.

@@ -1,5 +1,10 @@
 const jwt = require("jsonwebtoken");
-
+/**
+ * Middleware to authenticate the user using JWT token stored in cookies.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 module.exports = function (req, res, next) {
   const token = req.cookies.token;
 
