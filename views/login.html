@@ -3,149 +3,83 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Home - URL Shortener</title>
+    <title>Login - URL Shortener</title>
     <link
       href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
       rel="stylesheet"
     />
     <style>
       .container {
-        max-width: 800px;
+        max-width: 500px;
         margin-top: 50px;
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h2 class="text-center">URL Shortener</h2>
-      <form id="addUrlForm" class="mt-4">
+      <h2 class="text-center">Login</h2>
+      <form id="loginForm" class="mt-4">
         <div
           id="error-message"
           class="alert alert-danger d-none"
           role="alert"
         ></div>
         <div class="form-group">
-          <label for="originalUrl">Enter URL to shorten</label>
+          <label for="loginEmail">Email address</label>
           <input
-            type="url"
+            type="email"
             class="form-control"
-            id="originalUrl"
-            placeholder="Enter URL"
+            id="loginEmail"
+            placeholder="Enter email"
             required
           />
         </div>
-        <button type="submit" class="btn btn-primary btn-block">Add URL</button>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input
+            type="password"
+            class="form-control"
+            id="loginPassword"
+            placeholder="Password"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Login</button>
       </form>
-      <h3 class="mt-5">Your Shortened URLs</h3>
-      <ul id="urlList" class="list-group mt-3">
-        <!-- Short URLs will be added here dynamically -->
-      </ul>
+      <p class="text-center mt-3">
+        Don't have an account? <a href="/register">Register here</a>
+      </p>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        fetchUrls();
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const email = document.getElementById("loginEmail").value;
+          const password = document.getElementById("loginPassword").value;
+          const errorMessageElement = document.getElementById("error-message");
 
-        document
-          .getElementById("addUrlForm")
-          .addEventListener("submit", async function (e) {
-            e.preventDefault();
-            const originalUrl = document.getElementById("originalUrl").value;
-            const errorMessageElement =
-              document.getElementById("error-message");
-
-            const response = await fetch("/api/url/create", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("token")}`, // Send token in Authorization header
-              },
-              body: JSON.stringify({ originalUrl }),
-            });
-
-            const data = await response.json();
-            if (response.ok) {
-              errorMessageElement.classList.add("d-none");
-              document.getElementById("originalUrl").value = ""; // Clear the input
-              fetchUrls(); // Refresh the URL list
-            } else {
-              errorMessageElement.textContent = data.msg;
-              errorMessageElement.classList.remove("d-none");
-            }
-          });
-      });
-
-      async function fetchUrls() {
-        const response = await fetch("/api/url/dashboard", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Send token in Authorization header
-          },
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-          const urlList = document.getElementById("urlList");
-          urlList.innerHTML = ""; // Clear the list
-          data.forEach((url) => {
-            const listItem = document.createElement("li");
-            listItem.className =
-              "list-group-item d-flex justify-content-between align-items-center";
-            listItem.innerHTML = `
-            <span>${url.originalUrl} - <a href="/${url.shortUrl}" target="_blank">${url.shortUrl}</a></span>
-            <span>
-              <button class="btn btn-warning btn-sm mr-2" onclick="editUrl('${url._id}', '${url.originalUrl}')">Edit</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteUrl('${url._id}')">Delete</button>
-            </span>
-          `;
-            urlList.appendChild(listItem);
-          });
-        } else {
-          alert("Failed to fetch URLs");
-        }
-      }
-
-      async function editUrl(id, originalUrl) {
-        const newUrl = prompt("Enter new URL", originalUrl);
-        if (newUrl) {
-          const response = await fetch("/api/url/update", {
-            method: "PUT",
+          const response = await fetch("/api/auth/login", {
+            method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`, // Send token in Authorization header
             },
-            body: JSON.stringify({ id, newUrl }),
+            body: JSON.stringify({ email, password }),
           });
 
           const data = await response.json();
           if (response.ok) {
-            fetchUrls(); // Refresh the URL list
+            errorMessageElement.classList.add("d-none");
+            localStorage.setItem("token", data.token); // Store the JWT token in localStorage
+            window.location.href = "/home"; // Redirect to home page
           } else {
-            alert(data.msg);
+            errorMessageElement.textContent = data.msg;
+            errorMessageElement.classList.remove("d-none");
           }
-        }
-      }
-
-      async function deleteUrl(id) {
-        const response = await fetch("/api/url/delete", {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Send token in Authorization header
-          },
-          body: JSON.stringify({ id }),
         });
-
-        const data = await response.json();
-        if (response.ok) {
-          fetchUrls(); // Refresh the URL list
-        } else {
-          alert(data.msg);
-        }
-      }
     </script>
   </body>
 </html>

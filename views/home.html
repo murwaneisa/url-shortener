@@ -46,104 +46,133 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
+        console.log("DOMContentLoaded event fired");
         fetchUrls();
 
         document
           .getElementById("addUrlForm")
           .addEventListener("submit", async function (e) {
             e.preventDefault();
+            console.log("Form submit event fired");
             const originalUrl = document.getElementById("originalUrl").value;
             const errorMessageElement =
               document.getElementById("error-message");
 
-            const response = await fetch("/api/url/create", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: localStorage.getItem("token"), // Send token in Authorization header
-              },
-              body: JSON.stringify({ originalUrl }),
-            });
+            try {
+              const response = await fetch("/api/url/create", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${localStorage.getItem("token")}`, // Send token in Authorization header
+                },
+                body: JSON.stringify({ originalUrl }),
+              });
 
-            const data = await response.json();
-            if (response.ok) {
-              errorMessageElement.classList.add("d-none");
-              document.getElementById("originalUrl").value = ""; // Clear the input
-              fetchUrls(); // Refresh the URL list
-            } else {
-              errorMessageElement.textContent = data.msg;
-              errorMessageElement.classList.remove("d-none");
+              const data = await response.json();
+              if (response.ok) {
+                console.log("URL created successfully");
+                errorMessageElement.classList.add("d-none");
+                document.getElementById("originalUrl").value = ""; // Clear the input
+                fetchUrls(); // Refresh the URL list
+              } else {
+                console.log("Failed to create URL", data.msg);
+                errorMessageElement.textContent = data.msg;
+                errorMessageElement.classList.remove("d-none");
+              }
+            } catch (error) {
+              console.log("Error in form submit handler", error);
             }
           });
       });
 
       async function fetchUrls() {
-        const response = await fetch("/api/url/dashboard", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: localStorage.getItem("token"), // Send token in Authorization header
-          },
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-          const urlList = document.getElementById("urlList");
-          urlList.innerHTML = ""; // Clear the list
-          data.forEach((url) => {
-            const listItem = document.createElement("li");
-            listItem.className =
-              "list-group-item d-flex justify-content-between align-items-center";
-            listItem.innerHTML = `
-            <span>${url.originalUrl} - <a href="/${url.shortUrl}" target="_blank">${url.shortUrl}</a></span>
-            <span>
-              <button class="btn btn-warning btn-sm mr-2" onclick="editUrl('${url._id}', '${url.originalUrl}')">Edit</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteUrl('${url._id}')">Delete</button>
-            </span>
-          `;
-            urlList.appendChild(listItem);
-          });
-        } else {
-          alert("Failed to fetch URLs");
-        }
-      }
-
-      async function editUrl(id, originalUrl) {
-        const newUrl = prompt("Enter new URL", originalUrl);
-        if (newUrl) {
-          const response = await fetch("/api/url/update", {
-            method: "PUT",
+        console.log("executed fetchUrls");
+        try {
+          const response = await fetch("/api/url/dashboard", {
+            method: "GET",
             headers: {
               "Content-Type": "application/json",
-              Authorization: localStorage.getItem("token"), // Send token in Authorization header
+              Authorization: `Bearer ${localStorage.getItem("token")}`, // Send token in Authorization header
             },
-            body: JSON.stringify({ id, newUrl }),
           });
 
           const data = await response.json();
           if (response.ok) {
-            fetchUrls(); // Refresh the URL list
+            console.log("Fetched URLs successfully");
+            const urlList = document.getElementById("urlList");
+            urlList.innerHTML = ""; // Clear the list
+            data.forEach((url) => {
+              const listItem = document.createElement("li");
+              listItem.className =
+                "list-group-item d-flex justify-content-between align-items-center";
+              listItem.innerHTML = `
+              <span>${url.originalUrl} - <a href="/${url.shortUrl}" target="_blank">http://localhost:5000/${url.shortUrl}</a></span>
+              <span>
+                <button class="btn btn-warning btn-sm mr-2" onclick="editUrl('${url._id}', '${url.originalUrl}')">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteUrl('${url._id}')">Delete</button>
+              </span>
+            `;
+              urlList.appendChild(listItem);
+            });
           } else {
-            alert(data.msg);
+            console.log("Failed to fetch URLs", data.msg);
+            alert("Failed to fetch URLs");
+          }
+        } catch (error) {
+          console.log("Error in fetchUrls", error);
+        }
+      }
+
+      async function editUrl(id, originalUrl) {
+        console.log(`Editing URL with id ${id}`);
+        const newUrl = prompt("Enter new URL", originalUrl);
+        if (newUrl) {
+          try {
+            const response = await fetch("/api/url/update", {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`, // Send token in Authorization header
+              },
+              body: JSON.stringify({ id, newUrl }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+              console.log("URL updated successfully");
+              fetchUrls(); // Refresh the URL list
+            } else {
+              console.log("Failed to update URL", data.msg);
+              alert(data.msg);
+            }
+          } catch (error) {
+            console.log("Error in editUrl", error);
           }
         }
       }
 
       async function deleteUrl(id) {
-        const response = await fetch("/api/url/delete", {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: localStorage.getItem("token"), // Send token in Authorization header
-          },
-          body: JSON.stringify({ id }),
-        });
+        console.log(`Deleting URL with id ${id}`);
+        try {
+          const response = await fetch("/api/url/delete", {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`, // Send token in Authorization header
+            },
+            body: JSON.stringify({ id }),
+          });
 
-        const data = await response.json();
-        if (response.ok) {
-          fetchUrls(); // Refresh the URL list
-        } else {
-          alert(data.msg);
+          const data = await response.json();
+          if (response.ok) {
+            console.log("URL deleted successfully");
+            fetchUrls(); // Refresh the URL list
+          } else {
+            console.log("Failed to delete URL", data.msg);
+            alert(data.msg);
+          }
+        } catch (error) {
+          console.log("Error in deleteUrl", error);
         }
       }
     </script>

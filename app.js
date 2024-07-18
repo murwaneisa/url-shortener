@@ -14,7 +14,7 @@ connectDB();
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-//serve static files
+// Serve static files
 app.use(express.static("views"));
 
 // Define Routes
@@ -34,6 +34,10 @@ app.get("/register", (req, res) => {
 app.get("/home", auth, (req, res) => {
   res.sendFile(__dirname + "/views/home.html");
 });
+
+// Handle short URL redirection
+app.get("/:shortUrl", require("./controllers/urlController").redirectUrl);
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
