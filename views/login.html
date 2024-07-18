@@ -73,7 +73,6 @@
           const data = await response.json();
           if (response.ok) {
             errorMessageElement.classList.add("d-none");
-            localStorage.setItem("token", data.token); // Store the JWT token in localStorage
             window.location.href = "/home"; // Redirect to home page
           } else {
             errorMessageElement.textContent = data.msg;

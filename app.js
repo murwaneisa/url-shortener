@@ -31,6 +31,9 @@ app.get("/register", (req, res) => {
 });
 
 // Protect the home route
+app.get("/", auth, (req, res) => {
+  res.sendFile(__dirname + "/views/home.html");
+});
 app.get("/home", auth, (req, res) => {
   res.sendFile(__dirname + "/views/home.html");
 });
